@@ -43,13 +43,23 @@ enum UpdateChecker {
                 else {
                     completion(.failed("解析失败")); return
                 }
-                if m.build > currentBuild {
-                    completion(.available(m))
-                } else {
-                    completion(.upToDate)
-                }
+                // 同时比较版本号和 build：任一更大就算有新版本
+                let newer = compareVersion(m.version, currentVersion) > 0 || m.build > currentBuild
+                if newer { completion(.available(m)) } else { completion(.upToDate) }
             }
         }.resume()
+    }
+
+    /// 1.7.0 vs 1.6.0 → 1；相等 → 0；更小 → -1
+    static func compareVersion(_ a: String, _ b: String) -> Int {
+        let pa = a.split(separator: ".").map { Int($0) ?? 0 }
+        let pb = b.split(separator: ".").map { Int($0) ?? 0 }
+        for i in 0..<max(pa.count, pb.count) {
+            let x = i < pa.count ? pa[i] : 0
+            let y = i < pb.count ? pb[i] : 0
+            if x != y { return x > y ? 1 : -1 }
+        }
+        return 0
     }
 
     static func install(_ m: Manifest) {
