@@ -160,8 +160,7 @@ enum Signer {
 
             if let zlog = try? String(contentsOf: logFile, encoding: .utf8), !zlog.isEmpty {
                 log("--- zsign 输出 ---")
-                zlog.split(separator: "
-").suffix(30).forEach { log(String($0)) }
+                zlog.split(separator: "\n").suffix(30).forEach { log(String($0)) }
             }
 
             progress?(1.0)
