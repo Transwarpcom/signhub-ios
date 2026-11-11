@@ -346,9 +346,9 @@ final class AppStore: ObservableObject {
         var exp: Date?
         // kSecOIDX509V1ValidityNotAfter → SecCertificateCopyValues
         let oids = [kSecOIDX509V1ValidityNotAfter] as CFArray
-        if let dict = SecCertificateCopyValues(cert, oids, nil) as? [CFString: Any],
-           let entry = dict[kSecOIDX509V1ValidityNotAfter] as? [CFString: Any],
-           let v = entry[kSecPropertyKeyValue] as? Date {
+        if let dict = SecCertificateCopyValues(cert, oids, nil) as? [String: Any],
+           let entry = dict[kSecOIDX509V1ValidityNotAfter as String] as? [String: Any],
+           let v = entry["Value"] as? Date {
             exp = v
         }
         return (cn, exp)
