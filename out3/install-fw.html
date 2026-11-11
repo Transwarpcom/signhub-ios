@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>安装 签名工坊 v2</title>
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+background:#0b0d12;color:#e7ecf3;font:16px/1.6 -apple-system,"PingFang SC",sans-serif;padding:20px}
+.card{width:min(420px,92vw);background:#141821;border:1px solid #232a38;border-radius:22px;padding:30px;text-align:center}
+.icon{width:88px;height:88px;border-radius:22px;background:linear-gradient(135deg,#10b981,#3b82f6);
+display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 18px;box-shadow:0 10px 30px rgba(16,185,129,.3)}
+h1{font-size:21px;margin:0 0 6px}
+.meta{color:#8b98ad;font-size:12.5px;margin:0 0 20px;word-break:break-all}
+a.btn{display:block;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;text-decoration:none;
+padding:15px;border-radius:14px;font-weight:650;font-size:16px}
+.tip{margin-top:16px;font-size:12px;color:#6b7789;text-align:left;background:#0f131a;
+border:1px solid #1e2532;border-radius:12px;padding:12px}
+</style>
+<div class="card">
+  <div class="icon">🔏</div>
+  <h1>签名工坊 · v2</h1>
+  <div class="meta">cn.medwarp.signhub · 1.0.0<br>8.3 MB · 内嵌 OpenSSL.framework</div>
+  <a class="btn" href="itms-services://?action=download-manifest&url=https://html.medwarp.cn/ipa/manifest-fw.plist">点击安装</a>
+  <div class="tip">
+    这版把 <b>OpenSSL.framework</b> 嵌进 App 的 <code>Frameworks/</code> 了。上一版二进制里写着 <code>@rpath/OpenSSL.framework/OpenSSL</code>，但包里没有这个文件，dyld 一启动就崩——所以「打开即闪退」。
+  </div>
+</div>
