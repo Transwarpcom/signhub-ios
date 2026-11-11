@@ -6,11 +6,10 @@ name: Probe
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Hello
         run: |
           echo "runner ok"
-          xcodebuild -version
-          sw_vers
+          uname -a
