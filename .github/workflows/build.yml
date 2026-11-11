@@ -33,8 +33,11 @@ jobs:
           CXX="xcrun --sdk iphoneos clang++ -arch arm64 -miphoneos-version-min=16.0 -std=c++11 -O2 -fno-rtti"
 
           # 用宏把 main 改名，避免和 App 的 main 冲突
+          echo "=== zsign.cpp 里的 main ==="
+          grep -nE "int +main *\(" "$SRC/zsign.cpp" | head -3
           $CXX -Dmain=zsign_run_main -c "$SRC/zsign.cpp" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o /tmp/obj/zsign_entry.o
-          nm /tmp/obj/zsign_entry.o | grep -c zsign_run_main || true
+          echo "=== zsign_entry.o 符号 ==="
+          nm -g /tmp/obj/zsign_entry.o 2>/dev/null | grep -i "main" | head -5
 
           for f in "$SRC"/*.cpp; do
             [ "$(basename "$f")" = "zsign.cpp" ] && continue
@@ -57,6 +60,8 @@ jobs:
           done
 
           libtool -static -o /tmp/libzsign.a /tmp/obj/*.o
+          echo "=== libzsign.a 里的 main 符号 ==="
+          nm -g /tmp/libzsign.a 2>/dev/null | grep -i "zsign_run_main" | head -3 || echo "NOT FOUND"
           mkdir -p Vendor
           cp /tmp/libzsign.a Vendor/
           cp -R "$OSSL" Vendor/OpenSSL.framework
