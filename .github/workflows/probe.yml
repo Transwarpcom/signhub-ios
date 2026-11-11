@@ -1,0 +1,40 @@
+name: Build SignHub iOS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode
+        run: xcodebuild -version
+
+      # ---------- OpenSSL for iOS ----------
+      - name: Fetch OpenSSL xcframework
+        run: |
+          set -e
+          VER=3.4.1
+          URL="https://github.com/krzyzanowskim/OpenSSL/releases/download/${VER}/OpenSSL.xcframework.zip"
+          curl -fL --retry 3 -o /tmp/openssl.zip "$URL"
+          unzip -q -o /tmp/openssl.zip -d /tmp/openssl
+          find /tmp/openssl -maxdepth 3 -type d | head -20
+          ls -la /tmp/openssl
+
+      # ---------- zsign for iOS ----------
+      - name: Build zsign static lib
+        run: |
+          set -e
+          git clone --depth 1 https://github.com/zhlynn/zsign.git /tmp/zsign
+          ls /tmp/zsign/src
+          OSSL=$(find /tmp/openssl -type d -name "ios-arm64" | head -1)
+          echo "OSSL=$OSSL"
+          HDRS=$(find "$OSSL" -type d -name Headers | head -1)
+          echo "HDRS=$HDRS"
+          LIB=$(find "$OSSL" -type f -name "*.a" | head -5)
+          echo "LIBS=$LIB"
+          ls -la "$OSSL"
