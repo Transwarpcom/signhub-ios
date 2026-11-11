@@ -100,26 +100,25 @@ final class ZipArchive {
 
     static func inflateRaw(_ data: Data, expected: Int) -> Data? {
         guard !data.isEmpty else { return Data() }
-        var out = Data(count: max(expected, 1024))
-        var outLen = uLongf(out.count)
-        let status: Int32 = data.withUnsafeBytes { inPtr -> Int32 in
-            guard let inBase = inPtr.bindMemory(to: Bytef.self).baseAddress else { return -1 }
-            return out.withUnsafeMutableBytes { outPtr -> Int32 in
-                guard let outBase = outPtr.bindMemory(to: Bytef.self).baseAddress else { return -1 }
+        var inBytes = [UInt8](data)
+        var outBytes = [UInt8](repeating: 0, count: max(expected, 1024))
+        var total: Int = 0
+        let status: Int32 = inBytes.withUnsafeMutableBufferPointer { inBuf -> Int32 in
+            outBytes.withUnsafeMutableBufferPointer { outBuf -> Int32 in
                 var strm = z_stream()
-                strm.next_in = UnsafeMutablePointer(mutating: inBase)
-                strm.avail_in = uInt(data.count)
-                strm.next_out = outBase
-                strm.avail_out = uInt(out.count)
-                let initCode = inflateInit2_(&strm, -MAX_WBITS, ZLIB_VERSION, Int32(MemoryLayout<z_stream>.size))
-                guard initCode == Z_OK else { return initCode }
+                strm.next_in = inBuf.baseAddress
+                strm.avail_in = uInt(inBuf.count)
+                strm.next_out = outBuf.baseAddress
+                strm.avail_out = uInt(outBuf.count)
+                let ic = inflateInit2_(&strm, -MAX_WBITS, ZLIB_VERSION, Int32(MemoryLayout<z_stream>.size))
+                guard ic == Z_OK else { return ic }
                 defer { inflateEnd(&strm) }
                 let r = inflate(&strm, Z_FINISH)
-                outLen = uLongf(strm.total_out)
+                total = Int(strm.total_out)
                 return r
             }
         }
         guard status == Z_STREAM_END || status == Z_OK else { return nil }
-        return out.prefix(Int(outLen))
+        return Data(outBytes.prefix(total))
     }
 }
