@@ -92,13 +92,13 @@ final class ZipArchive {
         let raw = buf.subdata(in: dataStart..<dataEnd)
 
         if e.method == 0 { return raw }
-        if e.method == 8 { return ZipArchive.inflate(raw, expected: e.uncompressedSize) }
+        if e.method == 8 { return ZipArchive.inflateRaw(raw, expected: e.uncompressedSize) }
         return nil
     }
 
     // MARK: inflate（zlib）
 
-    static func inflate(_ data: Data, expected: Int) -> Data? {
+    static func inflateRaw(_ data: Data, expected: Int) -> Data? {
         guard !data.isEmpty else { return Data() }
         var out = Data(count: max(expected, 1024))
         var outLen = uLongf(out.count)

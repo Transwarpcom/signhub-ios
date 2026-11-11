@@ -154,7 +154,7 @@ enum Signer {
             let raw = data.subdata(in: e.dataStart..<e.dataEnd)
             let body: Data
             if e.method == 0 { body = raw }
-            else if e.method == 8 { body = inflate(raw, expected: e.uncompressedSize) ?? Data() }
+            else if e.method == 8 { body = inflateRaw(raw, expected: e.uncompressedSize) ?? Data() }
             else { continue }
             try body.write(to: out)
         }
@@ -182,8 +182,14 @@ enum Signer {
 
         func dosTime(_ date: Date) -> (UInt16, UInt16) {
             let c = Calendar(identifier: .gregorian).dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
-            let t = UInt16((c.hour ?? 0) << 11 | (c.minute ?? 0) << 5 | (c.second ?? 0) / 2)
-            let d = UInt16(((c.year ?? 2020) - 1980) << 9 | (c.month ?? 1) << 5 | (c.day ?? 1))
+            let hh: UInt16 = UInt16(c.hour ?? 0)
+            let mm: UInt16 = UInt16(c.minute ?? 0)
+            let ss: UInt16 = UInt16((c.second ?? 0) / 2)
+            let t: UInt16 = (hh << 11) | (mm << 5) | ss
+            let yy: UInt16 = UInt16((c.year ?? 2020) - 1980)
+            let mo: UInt16 = UInt16(c.month ?? 1)
+            let dd: UInt16 = UInt16(c.day ?? 1)
+            let d: UInt16 = (yy << 9) | (mo << 5) | dd
             return (t, d)
         }
 
@@ -298,7 +304,7 @@ enum Signer {
         return out
     }
 
-    private static func inflate(_ data: Data, expected: Int) -> Data? {
+    private static func inflateRaw(_ data: Data, expected: Int) -> Data? {
         guard !data.isEmpty else { return Data() }
         var out = Data(count: max(expected, 1024))
         var outLen = uLongf(out.count)
