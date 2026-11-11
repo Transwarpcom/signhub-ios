@@ -1,0 +1,98 @@
+name: Build SignHub IPA
+
+"on":
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Fetch OpenSSL xcframework
+        run: |
+          set -e
+          curl -fL --retry 3 -o /tmp/openssl.zip \
+            https://github.com/krzyzanowskim/OpenSSL/releases/download/3.6.5000/OpenSSL.xcframework.zip
+          unzip -q -o /tmp/openssl.zip -d /tmp/openssl
+
+      - name: Build zsign static lib
+        run: |
+          set -e
+          OSSL=/tmp/openssl/OpenSSL.xcframework/ios-arm64/OpenSSL.framework
+          git clone --depth 1 https://github.com/zhlynn/zsign.git /tmp/zsign
+          SRC=/tmp/zsign/src
+          mkdir -p /tmp/obj /tmp/inc
+          ln -sfn "$OSSL/Headers" /tmp/inc/openssl
+
+          sed 's/^int main(/int zsign_run_main(/' "$SRC/zsign.cpp" > /tmp/zsign_entry.cpp
+
+          CXX="xcrun --sdk iphoneos clang++ -arch arm64 -miphoneos-version-min=15.0 -std=c++11 -O2 -fno-rtti"
+          $CXX -c /tmp/zsign_entry.cpp -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o /tmp/obj/zsign_entry.o
+
+          for f in "$SRC"/*.cpp; do
+            [ "$(basename "$f")" = "zsign.cpp" ] && continue
+            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o "/tmp/obj/$(basename "$f" .cpp).o"
+          done
+
+          for f in "$SRC"/common/*.cpp; do
+            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o "/tmp/obj/common_$(basename "$f" .cpp).o"
+          done
+
+          CC="xcrun --sdk iphoneos clang -arch arm64 -miphoneos-version-min=15.0 -O2"
+          for f in "$SRC"/third-party/zlib/*.c; do
+            $CC -c "$f" -I "$SRC/third-party/zlib" -o "/tmp/obj/zlib_$(basename "$f" .c).o"
+          done
+
+          for f in "$SRC"/third-party/minizip/*.c; do
+            base=$(basename "$f")
+            case "$base" in iowin32.c|iowin32s.c) continue;; esac
+            $CC -c "$f" -I "$SRC/third-party/zlib" -I "$SRC/third-party/minizip" -o "/tmp/obj/minizip_${base%.c}.o"
+          done
+
+          libtool -static -o /tmp/libzsign.a /tmp/obj/*.o
+          mkdir -p Vendor
+          cp /tmp/libzsign.a Vendor/
+          cp -R "$OSSL" Vendor/OpenSSL.framework
+          # 拷 header 供 swift 桥接
+          mkdir -p Vendor/include
+          cp -R "$OSSL/Headers/"* Vendor/include/ 2>/dev/null || true
+          ls -lh Vendor
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project SignHub.xcodeproj \
+            -scheme SignHub \
+            -sdk iphoneos \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tail -60
+
+      - name: Package IPA
+        run: |
+          set -e
+          APP=build/Build/Products/Release-iphoneos/SignHub.app
+          ls -la "$APP" | head -20
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry SignHub-unsigned.ipa Payload
+          ls -lh SignHub-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SignHub-ipa
+          path: SignHub-unsigned.ipa
+          retention-days: 30
