@@ -90,6 +90,7 @@ struct SignOptions: Codable, Equatable {
     var removeWatch: Bool = false
     var clearOldCodeSignature: Bool = false
     var dylibIds: [String] = []
+    var iconPath: String = ""
 }
 
 // MARK: - 存储

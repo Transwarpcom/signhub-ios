@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// 调 zsign 做重签名。全部在后台线程跑。
 enum Signer {
@@ -21,6 +22,8 @@ enum Signer {
                      removePlugins: Bool = false,
                      removeWatch: Bool = false,
                      dylibs: [URL] = [],
+                     iconPath: String? = nil,
+                     progress: ((Double) -> Void)? = nil,
                      logHandler: ((String) -> Void)? = nil) -> Result {
 
         // 先解包到临时目录，做完修改再交给 zsign（这样 -E 之类不依赖 zsign 版本）
@@ -93,6 +96,11 @@ enum Signer {
                 }
             }
 
+            // 换图标
+            if let iconPath, !iconPath.isEmpty, let img = UIImage(contentsOfFile: iconPath) {
+                IconReplacer.apply(to: app, icon: img, log: log)
+            }
+
             // 注入动态库
             if !dylibs.isEmpty {
                 let fw = app.appendingPathComponent("Frameworks")
@@ -106,8 +114,10 @@ enum Signer {
             }
 
             // 重新打包成 ipa
+            progress?(0.5)
             let repacked = work.appendingPathComponent("repacked.ipa")
             try zip(unzipDir, to: repacked)
+            progress?(0.7)
             log("重新打包完成")
 
             // zsign 签名
@@ -128,6 +138,7 @@ enum Signer {
                 zsign_run_main_c(Int32(buf.count), buf.baseAddress)
             }
 
+            progress?(1.0)
             let ok = code == 0 && FileManager.default.fileExists(atPath: output.path)
             log("zsign exit=\(code) ok=\(ok)")
             return Result(ok: ok, log: logs.joined(separator: "\n"), outputURL: ok ? output : nil)

@@ -14,6 +14,8 @@ struct SignConfigView: View {
     @State private var result: IPARecord?
     @State private var error: String?
     @State private var showAdvanced = false
+    @State private var prog: Double = 0
+    @State private var pickIcon = false
 
     var body: some View {
         NavigationView {
@@ -28,6 +30,15 @@ struct SignConfigView: View {
                     if let error {
                         Card { Text(error).font(.system(size: 12)).foregroundColor(.red) }
                     }
+                    if signing {
+                        VStack(spacing: 6) {
+                            ProgressView(value: prog)
+                                .tint(Theme.accent)
+                            Text("\(Int(prog * 100))%")
+                                .font(.system(size: 11)).foregroundColor(.gray)
+                        }
+                        .padding(.horizontal, 4)
+                    }
                     PrimaryButton(title: signing ? "签名中…" : "签名", busy: signing,
                                   enabled: !certId.isEmpty) { start() }
                 }
@@ -37,6 +48,9 @@ struct SignConfigView: View {
             .navigationTitle("签名配置")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } } }
+            .documentPicker(isPresented: $pickIcon) { urls in
+                if let u = urls.first { opts.iconPath = u.path }
+            }
         }
         .onAppear {
             if certId.isEmpty { certId = store.certs.first?.id ?? "" }
@@ -103,6 +117,21 @@ struct SignConfigView: View {
                 toggleRow("移除 Watch App", $opts.removeWatch)
                 toggleRow("清掉旧的 _CodeSignature", $opts.clearOldCodeSignature)
                 field("最低 iOS 版本（如 15.0）", text: $opts.newMinOS)
+                Button {
+                    pickIcon = true
+                } label: {
+                    HStack {
+                        Image(systemName: "photo")
+                        Text(opts.iconPath.isEmpty ? "换图标" : "已选图标（点重选）")
+                            .font(.system(size: 13))
+                        Spacer()
+                        if !opts.iconPath.isEmpty {
+                            Image(systemName: "checkmark.circle.fill").foregroundColor(Theme.ok)
+                        }
+                    }
+                    .padding(11).background(Theme.panel2).cornerRadius(11)
+                }
+                .buttonStyle(.plain)
                 if !store.dylibs.isEmpty {
                     Text("注入动态库").font(.system(size: 12)).foregroundColor(.gray)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -175,7 +204,7 @@ struct SignConfigView: View {
 
     private func start() {
         guard let cert = store.certs.first(where: { $0.id == certId }) else { return }
-        signing = true; error = nil; result = nil; log = ""
+        signing = true; error = nil; result = nil; log = ""; prog = 0
 
         let input = store.ipaURL(ipa)
         let outName = "signed-\(Int(Date().timeIntervalSince1970)).ipa"
@@ -206,6 +235,8 @@ struct SignConfigView: View {
                                     removePlugins: o.removePlugins,
                                     removeWatch: o.removeWatch,
                                     dylibs: dylibPaths,
+                                    iconPath: o.iconPath.isEmpty ? nil : o.iconPath,
+                                    progress: { p in DispatchQueue.main.async { prog = p } },
                                     logHandler: { logs.append($0) })
                 if r.ok { last = dst }
             }
