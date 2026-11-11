@@ -80,7 +80,11 @@ jobs:
           echo "zlib OK"
 
           for f in "$SRC"/third-party/minizip/*.c; do
-            $CC -c "$f" -I "$SRC/third-party/zlib" -I "$SRC/third-party/minizip" -o "/tmp/obj/minizip_$(basename "$f" .c).o"
+            base=$(basename "$f")
+            case "$base" in
+              iowin32.c|iowin32s.c) echo "skip windows-only $base"; continue;;
+            esac
+            $CC -c "$f" -I "$SRC/third-party/zlib" -I "$SRC/third-party/minizip" -o "/tmp/obj/minizip_${base%.c}.o"
           done
           echo "minizip OK"
 
