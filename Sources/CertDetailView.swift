@@ -6,6 +6,8 @@ struct CertDetailView: View {
     let cert: CertRecord
     @State private var isCurrent = false
     @State private var showAll = false
+    @State private var confirmDelete = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
@@ -14,12 +16,22 @@ struct CertDetailView: View {
                 basicCard
                 profileCard
                 entCard
+                deleteCard
             }
             .padding(16)
         }
         .background(Theme.bg.ignoresSafeArea())
         .navigationTitle(cert.label)
         .navigationBarTitleDisplayMode(.inline)
+        .alert("删除这张证书？", isPresented: $confirmDelete) {
+            Button("删除", role: .destructive) {
+                store.removeCert(cert)
+                dismiss()
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("会同时删掉沙盒里的 p12 和描述文件，不可恢复。")
+        }
         .onAppear {
             store.ensureCurrentCert()
             isCurrent = UserDefaults.standard.string(forKey: "hub.currentCert") == cert.id
@@ -103,6 +115,22 @@ struct CertDetailView: View {
                 }
             }
         }
+    }
+
+    private var deleteCard: some View {
+        Button {
+            confirmDelete = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "trash")
+                Text("删除这张证书").font(.system(size: 14, weight: .medium))
+            }
+            .frame(maxWidth: .infinity).padding(.vertical, 13)
+            .background(Color.red.opacity(0.15))
+            .foregroundColor(.red)
+            .cornerRadius(13)
+        }
+        .buttonStyle(.plain)
     }
 
     private func row(_ k: String, _ v: String) -> some View {

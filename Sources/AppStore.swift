@@ -356,6 +356,8 @@ final class AppStore: ObservableObject {
             if !cn.isEmpty { info.subjectCN = cn }
             info.expireAt = exp
         }
+        // DER 解析不稳时用描述文件到期兜底（两者通常只差一两天）
+        if info.expireAt == nil { info.expireAt = info.profileExpireAt }
         return info
     }
 
