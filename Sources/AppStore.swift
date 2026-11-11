@@ -5,6 +5,37 @@ import Security
 // MARK: - 数据模型
 
 struct CertRecord: Codable, Identifiable, Equatable {
+    // 容错解码：新增字段时老 JSON 缺 key 不会让整条记录消失
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        label = (try? c.decode(String.self, forKey: .label)) ?? ""
+        password = (try? c.decode(String.self, forKey: .password)) ?? ""
+        teamId = (try? c.decode(String.self, forKey: .teamId)) ?? ""
+        subjectCN = (try? c.decode(String.self, forKey: .subjectCN)) ?? ""
+        appId = (try? c.decode(String.self, forKey: .appId)) ?? ""
+        expireAt = try? c.decodeIfPresent(Date.self, forKey: .expireAt)
+        profileExpireAt = try? c.decodeIfPresent(Date.self, forKey: .profileExpireAt)
+        deviceCount = (try? c.decode(Int.self, forKey: .deviceCount)) ?? 0
+        createdAt = (try? c.decode(Date.self, forKey: .createdAt)) ?? Date()
+        p12Name = (try? c.decode(String.self, forKey: .p12Name)) ?? "cert.p12"
+        profileName = (try? c.decode(String.self, forKey: .profileName)) ?? "profile.mobileprovision"
+        uuid = (try? c.decode(String.self, forKey: .uuid)) ?? ""
+        entitlements = (try? c.decode([EntitlementItem].self, forKey: .entitlements)) ?? []
+    }
+
+    init(id: String, label: String, password: String, teamId: String, subjectCN: String,
+         appId: String, expireAt: Date?, profileExpireAt: Date?, deviceCount: Int,
+         createdAt: Date, p12Name: String, profileName: String,
+         uuid: String = "", entitlements: [EntitlementItem] = []) {
+        self.id = id; self.label = label; self.password = password
+        self.teamId = teamId; self.subjectCN = subjectCN; self.appId = appId
+        self.expireAt = expireAt; self.profileExpireAt = profileExpireAt
+        self.deviceCount = deviceCount; self.createdAt = createdAt
+        self.p12Name = p12Name; self.profileName = profileName
+        self.uuid = uuid; self.entitlements = entitlements
+    }
+
     var id: String
     var label: String
     var password: String

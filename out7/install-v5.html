@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>安装 签名工坊 v5</title>
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+background:#0b0d12;color:#e7ecf3;font:16px/1.6 -apple-system,"PingFang SC",sans-serif;padding:20px}
+.card{width:min(430px,92vw);background:#141821;border:1px solid #232a38;border-radius:22px;padding:28px;text-align:center}
+.icon{width:88px;height:88px;border-radius:22px;background:linear-gradient(135deg,#8b5cf6,#ec4899);
+display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 18px;box-shadow:0 10px 30px rgba(139,92,246,.35)}
+h1{font-size:21px;margin:0 0 4px}
+.meta{color:#8b98ad;font-size:12.5px;margin:0 0 20px}
+a.btn{display:block;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;text-decoration:none;
+padding:15px;border-radius:14px;font-weight:650;font-size:16px}
+.feat{margin-top:18px;text-align:left;font-size:12.5px;color:#8b98ad;background:#0f131a;
+border:1px solid #1e2532;border-radius:12px;padding:14px}
+.feat b{color:#c8d6ea;display:block;margin-bottom:8px;font-size:13px}
+.feat div{padding:3px 0}
+.feat span{color:#6ee7a0}
+</style>
+<div class="card">
+  <div class="icon">🔏</div>
+  <h1>签名工坊 v5</h1>
+  <div class="meta">9.6 MB · 版本号 1.6.0</div>
+  <a class="btn" href="itms-services://?action=download-manifest&url=https://html.medwarp.cn/ipa/manifest-v5.plist">点击安装</a>
+  <div class="feat">
+    <b>v5 修了什么</b>
+    <div><span>✓</span> 版本号改成 1.6.0，build 号跟 GitHub Actions 走</div>
+    <div><span>✓</span> 证书到期时间：自己解析 DER 的 UTCTime（iOS 没有 SecCertificateCopyValues）</div>
+    <div><span>✓</span> 「未过期」不会再显示叉</div>
+    <div><span>✓</span> 只有一张证书时自动设为当前证书</div>
+    <div><span>✓</span> entitlements 每项加中文名，下面附原标识符</div>
+    <div><span>✓</span> 左滑「检查」按钮真正生效</div>
+  </div>
+</div>
