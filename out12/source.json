@@ -1,0 +1,22 @@
+{
+  "updated": "2026-11-11",
+  "items": [
+    {
+      "name": "签名工坊",
+      "bundleId": "cn.medwarp.signhub",
+      "version": "1.7.0",
+      "size": "9.6 MB",
+      "icon": "https://html.medwarp.cn/ipa/signhub-icon.png",
+      "url": "https://html.medwarp.cn/ipa/SignHub-unsigned.ipa",
+      "notes": "本机重签名工具，zsign 内核"
+    },
+    {
+      "name": "学习台 StudyHub",
+      "bundleId": "cn.medwarp.studyhub",
+      "version": "1.5.0",
+      "size": "1.8 MB",
+      "url": "https://html.medwarp.cn/ipa/StudyHub.ipa",
+      "notes": "高数 / 大学英语课程与题目，公式渲染"
+    }
+  ]
+}

@@ -104,6 +104,7 @@ struct WorkshopView: View {
     @State private var urlText = ""
     @State private var downloading = false
     @State private var browsing: IPARecord?
+    @State private var showSource = false
 
     var body: some View {
         NavigationView {
@@ -122,6 +123,8 @@ struct WorkshopView: View {
                         Button { showImporter = true } label: { Label("从本机选择 IPA", systemImage: "doc") }
                         Button { showUrlSheet = true } label: { Label("从网址下载", systemImage: "link") }
                         Button { scanFolder() } label: { Label("扫描文件夹", systemImage: "folder") }
+                        Divider()
+                        Button { showSource = true } label: { Label("软件源", systemImage: "globe") }
                     } label: { Image(systemName: "plus.circle.fill").font(.system(size: 22)) }
                 }
             }
@@ -134,6 +137,9 @@ struct WorkshopView: View {
             }
             .sheet(item: $browsing) { rec in
                 PackageBrowser(rec: rec).environmentObject(store)
+            }
+            .sheet(isPresented: $showSource) {
+                SourceView().environmentObject(store)
             }
         }
         .navigationViewStyle(.stack)
