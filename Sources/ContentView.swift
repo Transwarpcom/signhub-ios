@@ -103,6 +103,7 @@ struct WorkshopView: View {
     @State private var showUrlSheet = false
     @State private var urlText = ""
     @State private var downloading = false
+    @State private var browsing: IPARecord?
 
     var body: some View {
         NavigationView {
@@ -131,6 +132,9 @@ struct WorkshopView: View {
             .sheet(item: $pending) { rec in
                 SignConfigView(ipa: rec).environmentObject(store)
             }
+            .sheet(item: $browsing) { rec in
+                PackageBrowser(rec: rec).environmentObject(store)
+            }
         }
         .navigationViewStyle(.stack)
     }
@@ -148,9 +152,15 @@ struct WorkshopView: View {
     private func ipaCard(_ rec: IPARecord) -> some View {
         Card {
             VStack(alignment: .leading, spacing: 10) {
-                Text(rec.displayName.isEmpty ? rec.fileName : rec.displayName)
-                    .font(.system(size: 16, weight: .semibold)).lineLimit(1)
-                Text(rec.bundleId).font(.system(size: 11.5)).foregroundColor(.gray).lineLimit(1)
+                HStack(alignment: .top, spacing: 12) {
+                    AppIconView(ipa: store.ipaURL(rec), id: rec.id, size: 52)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(rec.displayName.isEmpty ? rec.fileName : rec.displayName)
+                            .font(.system(size: 16, weight: .semibold)).lineLimit(1)
+                        Text(rec.bundleId).font(.system(size: 11.5)).foregroundColor(.gray).lineLimit(1)
+                    }
+                    Spacer()
+                }
                 HStack(spacing: 6) {
                     tagView("v\(rec.version)")
                     tagView("iOS \(rec.minOS.isEmpty ? "?" : rec.minOS)+")
@@ -176,6 +186,7 @@ struct WorkshopView: View {
             }
         }
         .contextMenu {
+            Button { browsing = rec } label: { Label("看包结构", systemImage: "list.bullet.rectangle") }
             Button(role: .destructive) { store.removeIPA(rec) } label: { Label("删除", systemImage: "trash") }
         }
     }
@@ -249,11 +260,17 @@ struct SignedListView: View {
                         ForEach(store.signed) { rec in
                             Card {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text(rec.displayName.isEmpty ? rec.fileName : rec.displayName)
-                                        .font(.system(size: 15.5, weight: .semibold)).lineLimit(1)
-                                    Text(rec.bundleId).font(.system(size: 11)).foregroundColor(.gray).lineLimit(1)
-                                    Text("v\(rec.version) · \(fmtSize(rec.unzipSize)) · \(fmtDate(rec.importedAt))")
-                                        .font(.system(size: 11)).foregroundColor(.gray)
+                                    HStack(alignment: .top, spacing: 12) {
+                                        AppIconView(ipa: store.ipaURL(rec), id: rec.id, size: 46)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(rec.displayName.isEmpty ? rec.fileName : rec.displayName)
+                                                .font(.system(size: 15.5, weight: .semibold)).lineLimit(1)
+                                            Text(rec.bundleId).font(.system(size: 11)).foregroundColor(.gray).lineLimit(1)
+                                            Text("v\(rec.version) · \(fmtSize(rec.unzipSize)) · \(fmtDate(rec.importedAt))")
+                                                .font(.system(size: 11)).foregroundColor(.gray)
+                                        }
+                                        Spacer()
+                                    }
                                     HStack(spacing: 8) {
                                         Button {
                                             Installer.install(ipa: store.ipaURL(rec), bundleId: rec.bundleId)
