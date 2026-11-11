@@ -343,15 +343,35 @@ final class AppStore: ObservableObject {
     nonisolated static func parseCertCN(_ der: Data) -> (String, Date?) {
         guard let cert = SecCertificateCreateWithData(nil, der as CFData) else { return ("", nil) }
         let cn = (SecCertificateCopySubjectSummary(cert) as String?) ?? ""
+        return (cn, AppStore.notAfterFromDER(der))
+    }
 
-        var exp: Date?
-        // kSecOIDX509V1ValidityNotAfter → SecCertificateCopyValues
-        let oids = [kSecOIDX509V1ValidityNotAfter] as CFArray
-        if let dict = SecCertificateCopyValues(cert, oids, nil) as? [String: Any],
-           let entry = dict[kSecOIDX509V1ValidityNotAfter as String] as? [String: Any],
-           let v = entry["Value"] as? Date {
-            exp = v
+    /// 从 DER 里扫 UTCTime(0x17) / GeneralizedTime(0x18)，取最后一个（notAfter）
+    nonisolated static func notAfterFromDER(_ der: Data) -> Date? {
+        let b = [UInt8](der)
+        var found: [String] = []
+        var i = 0
+        while i < b.count - 2 {
+            if b[i] == 0x17 || b[i] == 0x18 {
+                let len = Int(b[i + 1])
+                if len >= 12, len <= 15, i + 2 + len <= b.count {
+                    let slice = b[(i + 2)..<(i + 2 + len)]
+                    if let str = String(bytes: slice, encoding: .ascii), str.hasSuffix("Z") {
+                        found.append(str)
+                    }
+                }
+            }
+            i += 1
         }
-        return (cn, exp)
+        guard let last = found.last else { return nil }
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        if last.count == 13 {
+            f.dateFormat = "yyMMddHHmmss'Z'"
+        } else {
+            f.dateFormat = "yyyyMMddHHmmss'Z'"
+        }
+        return f.date(from: last)
     }
 }
