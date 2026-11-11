@@ -16,12 +16,11 @@ targets:
     platform: iOS
     sources:
       - path: Sources
-      - path: Resources
-        type: folder
+      - path: Assets.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: cn.medwarp.signhub
-        INFOPLIST_FILE: Resources/Info.plist
+        INFOPLIST_FILE: Info.plist
         PRODUCT_NAME: SignHub
         TARGETED_DEVICE_FAMILY: "1,2"
         ENABLE_BITCODE: NO
