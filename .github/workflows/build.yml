@@ -70,9 +70,7 @@ jobs:
           set -e
           BUILD=${{ github.run_number }}
           # 主版本手动（VERSION 文件），末位跟 run_number 走，保证每次构建版本号都变
-          BASE=$(cat VERSION | tr -d '
-
-' | head -c 20)
+          BASE=$(head -1 VERSION)
           VER="${BASE}.${BUILD}"
           echo "version=$VER build=$BUILD"
           sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: \"$VER\"/" project.yml
