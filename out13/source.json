@@ -1,0 +1,365 @@
+{
+ "updated": "2026-11-11",
+ "items": [
+  {
+   "name": "AltStore",
+   "bundleId": "com.rileytestut.AltStore",
+   "version": "2.3.3",
+   "size": "38.7 MB",
+   "icon": "https://user-images.githubusercontent.com/705880/65270980-1eb96f80-dad1-11e9-9367-78ccd25ceb02.png",
+   "url": "https://cdn.altstore.io/file/altstore/apps/altstore/2_3_3.ipa",
+   "notes": "AltStore is an alternative app store for non-jailbroken devi"
+  },
+  {
+   "name": "AltStore",
+   "bundleId": "com.rileytestut.AltStore.Beta",
+   "version": "2.3.3b",
+   "size": "38.7 MB",
+   "icon": "https://user-images.githubusercontent.com/705880/65270980-1eb96f80-dad1-11e9-9367-78ccd25ceb02.png",
+   "url": "https://cdn.altstore.io/file/altstore/apps/altstore/2_3_3_b.ipa",
+   "notes": "An alternative App Store for iOS."
+  },
+  {
+   "name": "Delta",
+   "bundleId": "com.rileytestut.Delta",
+   "version": "1.7.1",
+   "size": "186.9 MB",
+   "icon": "https://cdn.altstore.io/file/altstore/images/delta/Delta4.png",
+   "url": "https://cdn.altstore.io/file/altstore/apps/delta/1_7_1.ipa",
+   "notes": "Classic games in your pocket."
+  },
+  {
+   "name": "Delta",
+   "bundleId": "com.rileytestut.Delta.Beta",
+   "version": "2.0.7",
+   "size": "197.8 MB",
+   "icon": "https://cdn.altstore.io/file/altstore/images/delta/Delta4.png",
+   "url": "https://www.patreon.com/file?h=105173733&m=765526235",
+   "notes": "Classic games in your pocket."
+  },
+  {
+   "name": "Clip",
+   "bundleId": "com.rileytestut.Clip",
+   "version": "1.2",
+   "size": "747.1 KB",
+   "icon": "https://user-images.githubusercontent.com/705880/63391981-5326f800-c37a-11e9-99d8-760fd06bb601.png",
+   "url": "https://cdn.altstore.io/file/altstore/apps/clip/1_2.ipa",
+   "notes": "Manage your clipboard history with ease."
+  },
+  {
+   "name": "Clip",
+   "bundleId": "com.rileytestut.Clip.Beta",
+   "version": "1.2b2",
+   "size": "751.9 KB",
+   "icon": "https://user-images.githubusercontent.com/705880/63391981-5326f800-c37a-11e9-99d8-760fd06bb601.png",
+   "url": "https://www.patreon.com/file?h=105173733&m=465953820",
+   "notes": "Manage your clipboard history with ease."
+  },
+  {
+   "name": "Provenance",
+   "bundleId": "org.provenance-emu.provenance",
+   "version": "3.3.0",
+   "size": "1.0 GB",
+   "icon": "https://github.com/Provenance-Emu.png",
+   "url": "https://github.com/Provenance-Emu/Provenance/releases/download/3.3.0/Provenance-3.3.0-iOS.ipa",
+   "notes": "Multi-system emulator frontend for iOS/tvOS"
+  },
+  {
+   "name": "Provenance Alpha",
+   "bundleId": "com.provenance-emu.provenance.alpha",
+   "version": "alpha",
+   "size": "744.8 MB",
+   "icon": "https://github.com/Provenance-Emu.png",
+   "url": "https://github.com/Provenance-Emu/Provenance/releases/download/alpha/Provenance-iOS-NoExtensions.ipa",
+   "notes": "Preview build of the multi-system emulator frontend"
+  },
+  {
+   "name": "UTM",
+   "bundleId": "com.utmapp.UTM",
+   "version": "5.0.8",
+   "size": "143.6 MB",
+   "icon": "https://github.com/utmapp.png",
+   "url": "https://github.com/utmapp/UTM/releases/download/v5.0.8/UTM.ipa",
+   "notes": "Virtual machines for iOS & macOS (QEMU)"
+  },
+  {
+   "name": "UTM SE",
+   "bundleId": "com.utmapp.UTM-SE",
+   "version": "5.0.8",
+   "size": "226.1 MB",
+   "icon": "https://github.com/utmapp.png",
+   "url": "https://github.com/utmapp/UTM/releases/download/v5.0.8/UTM-SE.ipa",
+   "notes": "UTM Slow Edition — no JIT required, App Store compliant"
+  },
+  {
+   "name": "PPSSPP",
+   "bundleId": "org.ppsspp.ppsspp-free",
+   "version": "1.20.4",
+   "size": "29.7 MB",
+   "icon": "https://github.com/hrydgard.png",
+   "url": "https://github.com/hrydgard/ppsspp/releases/download/v1.20.4/PPSSPP-iOS-v1.20.4.ipa",
+   "notes": "PSP emulator (iOS, Android, Desktop)"
+  },
+  {
+   "name": "Pocket8",
+   "bundleId": "com.jevon.pocket8",
+   "version": "1.6.2",
+   "size": "18.6 MB",
+   "icon": "https://github.com/jevonlipsey.png",
+   "url": "https://github.com/jevonlipsey/pico-ios/releases/download/v1.6.2/pocket8.ipa",
+   "notes": "Open-source PICO-8 cartridge player for iOS"
+  },
+  {
+   "name": "iTorrent",
+   "bundleId": "com.xitrix.iTorrent2",
+   "version": "2.2.0",
+   "size": "23.2 MB",
+   "icon": "https://github.com/XITRIX.png",
+   "url": "https://github.com/XITRIX/iTorrent/releases/download/v2.2.0-1/iTorrent.ipa",
+   "notes": "Torrent client for iOS 16+"
+  },
+  {
+   "name": "Feather",
+   "bundleId": "thewonderofyou.Feather",
+   "version": "2.9.0",
+   "size": "13.6 MB",
+   "icon": "https://github.com/khcrysalis.png",
+   "url": "https://github.com/claration/Feather/releases/download/v2.9.0/Feather.ipa",
+   "notes": "On-device IPA signer & installer"
+  },
+  {
+   "name": "LiveContainer",
+   "bundleId": "com.kdt.livecontainer",
+   "version": "3.8.11",
+   "size": "4.5 MB",
+   "icon": "https://github.com/LiveContainer.png",
+   "url": "https://github.com/LiveContainer/LiveContainer/releases/download/nightly/LiveContainer.ipa",
+   "notes": "Run iOS apps without installing them"
+  },
+  {
+   "name": "SideStore",
+   "bundleId": "com.SideStore.SideStore",
+   "version": "0.7.0-20260911.328+6032424a",
+   "size": "26.5 MB",
+   "icon": "https://github.com/SideStore.png",
+   "url": "https://github.com/SideStore/SideStore/releases/download/0.7.0-alpha/SideStore.ipa",
+   "notes": "AltStore fork - no AltServer required"
+  },
+  {
+   "name": "iSH",
+   "bundleId": "app.ish.iSH",
+   "version": "1.3.3",
+   "size": "4.4 MB",
+   "icon": "https://github.com/ish-app.png",
+   "url": "https://github.com/ish-app/ish/releases/download/builds/813/iSH.ipa",
+   "notes": "Linux shell on iOS - Alpine via usermode x86 emulation"
+  },
+  {
+   "name": "StikDebug",
+   "bundleId": "com.stik.stikdebug",
+   "version": "3.2.0",
+   "size": "16.0 MB",
+   "icon": "https://github.com/StiKDebug.png",
+   "url": "https://github.com/StiKDebug/StikDebug/releases/download/3.2.0/StikDebug-3.2.0.ipa",
+   "notes": "On-device debugger & JIT enabler for iOS 17.4+"
+  },
+  {
+   "name": "Roam Control",
+   "bundleId": "com.roamcontrol",
+   "version": "0.9.9",
+   "size": "4.4 MB",
+   "icon": "https://github.com/seanhowarthdev.png",
+   "url": "https://github.com/seanhowarthdev/Roam-Control/releases/download/v0.9.9/RoamControl-0.9.9-Build105.ipa",
+   "notes": "Location testing and route simulation for developers"
+  },
+  {
+   "name": "Spotube",
+   "bundleId": "oss.krtirtho.spotube",
+   "version": "5.1.2",
+   "size": "33.2 MB",
+   "icon": "https://github.com/KRTirtho.png",
+   "url": "https://github.com/KRTirtho/spotube/releases/download/v5.1.2/Spotube-iOS.ipa",
+   "notes": "Open-source Spotify client — no premium needed (SwiftUI/Flut"
+  },
+  {
+   "name": "Spotube 6 Beta",
+   "bundleId": "org.spotube.spotube.Spotube",
+   "version": "6.0.0-beta.0",
+   "size": "28.8 MB",
+   "icon": "https://github.com/team-spotube.png",
+   "url": "https://github.com/team-spotube/spotube/releases/download/v6.0.0-beta.0/Spotube-ios.ipa",
+   "notes": "Compose Multiplatform preview of the open music client"
+  },
+  {
+   "name": "BHTwitter",
+   "bundleId": "com.atebits.Tweetie2",
+   "version": "4.4",
+   "size": "159.3 MB",
+   "icon": "https://github.com/BandarHL.png",
+   "url": "https://github.com/BandarHL/BHTwitter/releases/download/4.4/BHTwitter-sideloaded.ipa",
+   "notes": "Tweaked Twitter/X — ad block, download, premium unlock (twea"
+  },
+  {
+   "name": "PojavLauncher",
+   "bundleId": "net.kdt.pojavlauncher",
+   "version": "2.2",
+   "size": "103.2 MB",
+   "icon": "https://github.com/PojavLauncherTeam.png",
+   "url": "https://github.com/PojavLauncherTeam/PojavLauncher_iOS/releases/download/v2.2/net.kdt.pojavlauncher-2.2-ios.ipa",
+   "notes": "Minecraft: Java Edition on iOS (Swift/ObjC + Java)"
+  },
+  {
+   "name": "LBox",
+   "bundleId": "Lolendor.LBox",
+   "version": "1.2",
+   "size": "600.4 KB",
+   "icon": "https://github.com/Lolendor.png",
+   "url": "https://github.com/Lolendor/LBox/releases/download/v1.2/LBox.ipa",
+   "notes": "SwiftUI repo manager for LiveContainer (NEW 2025)"
+  },
+  {
+   "name": "Apollo (Patched)",
+   "bundleId": "com.christianselig.Apollo",
+   "version": "1.15.11-0.1.0",
+   "size": "106.4 MB",
+   "icon": "https://github.com/ichitaso.png",
+   "url": "https://github.com/ichitaso/ApolloPatcher/releases/download/v0.1.0/Apollo-1.15.11_ApolloPatcher_0.1.0.ipa",
+   "notes": "Reddit's Apollo — revived with custom API key (tweaked)"
+  },
+  {
+   "name": "Cowabunga",
+   "bundleId": "com.leemin.Cowabunga",
+   "version": "10.3.2",
+   "size": "15.5 MB",
+   "icon": "https://github.com/leminlimez.png",
+   "url": "https://github.com/leminlimez/Cowabunga/releases/download/v10.3.2/Cowabunga.ipa",
+   "notes": "iOS 14-16.1.2 MacDirtyCow toolbox — themes, tweaks, no jailb"
+  },
+  {
+   "name": "Misaka",
+   "bundleId": "com.straighttamago.misaka",
+   "version": "8.2.4",
+   "size": "29.3 MB",
+   "icon": "https://github.com/straight-tamago.png",
+   "url": "https://github.com/straight-tamago/misaka/releases/download/8.2.4/misaka-v8.2.4.ipa",
+   "notes": "iOS & tvOS customisation for KFD & MDC — successor to Cowabu"
+  },
+  {
+   "name": "Yattee",
+   "bundleId": "stream.yattee.app",
+   "version": "2.0.0-beta.278",
+   "size": "38.0 MB",
+   "icon": "https://github.com/yattee.png",
+   "url": "https://github.com/yattee/yattee/releases/download/2.0.0-beta.278/Yattee-2.0.0-iOS.ipa",
+   "notes": "Privacy YouTube frontend for iOS/tvOS/macOS (AGPL)"
+  },
+  {
+   "name": "YouProEXTRA / YTKACE",
+   "bundleId": "com.google.ios.youtube",
+   "version": "21.43.5",
+   "size": "143.3 MB",
+   "icon": "https://github.com/mrdrvt99.png",
+   "url": "https://github.com/mrdrvt99/YouProEXTRA/releases/download/ytl-ipa6/YouTubePlus_21.43.5_6.0b2.ipa",
+   "notes": "Modified YouTube builds; choose a compatible version"
+  },
+  {
+   "name": "Paperback",
+   "bundleId": "com.paperback.ios",
+   "version": "0.8.11-r2",
+   "size": "13.0 MB",
+   "icon": "https://github.com/Paperback-iOS.png",
+   "url": "https://github.com/Paperback-iOS/app/releases/download/v0.8.11-r2/Paperback.ipa",
+   "notes": "Manga reader — extensions, tracking & downloads"
+  },
+  {
+   "name": "DebToIPA",
+   "bundleId": "net.sourceloc.DebToIPA",
+   "version": "1.1.1",
+   "size": "1.2 MB",
+   "icon": "https://github.com/sourcelocation.png",
+   "url": "https://github.com/sourcelocation/DebToIPA/releases/download/1.1.1/DebToIPA-1.1.1.ipa",
+   "notes": "Convert .deb tweaks to .ipa on-device (SwiftUI)"
+  },
+  {
+   "name": "ModMyIPA",
+   "bundleId": "com.powen.ModMyIPA",
+   "version": "1.0.2",
+   "size": "2.3 MB",
+   "icon": "https://github.com/powenn.png",
+   "url": "https://github.com/powenn/ModMyIPA/releases/download/1.0.2/ModMyIPA-1.0.2.ipa",
+   "notes": "Duplicate any IPA — install multiple copies side-by-side"
+  },
+  {
+   "name": "Azula",
+   "bundleId": "com.paisseon.Azula",
+   "version": "1.0.1",
+   "size": "1.5 MB",
+   "icon": "https://github.com/Paisseon.png",
+   "url": "https://github.com/Paisseon/Azula/releases/download/v1.0.1/Azula.ipa",
+   "notes": "Inject dylibs into IPAs on-device (SwiftUI + ElleKit)"
+  },
+  {
+   "name": "AppDB",
+   "bundleId": "it.ned.appdb-ios",
+   "version": "1.1.6",
+   "size": "22.2 MB",
+   "icon": "https://github.com/n3d1117.png",
+   "url": "https://github.com/n3d1117/appdb/releases/download/v1.1.6/appdb-v1.1.6-stev3fvcks.ipa",
+   "notes": "Full client for appdb.to — sideloaded apps database"
+  },
+  {
+   "name": "Mirarr",
+   "bundleId": "com.example.Mirarr",
+   "version": "3.3.3",
+   "size": "11.3 MB",
+   "icon": "https://github.com/mirarr-app.png",
+   "url": "https://github.com/mirarr-app/mirarr/releases/download/3.3.3/mirarr.ipa",
+   "notes": "FOSS movie & TV app — watch movies and TV shows"
+  },
+  {
+   "name": "AerioTV",
+   "bundleId": "app.molinete.aerio",
+   "version": "1.8.44",
+   "size": "21.0 MB",
+   "icon": "https://github.com/jonzey231.png",
+   "url": "https://github.com/jonzey231/AerioTV/releases/download/v1.8.44/Aerio_iOS_1.8.44.ipa",
+   "notes": "IPTV player for user-configured servers and playlists"
+  },
+  {
+   "name": "TwitchMods",
+   "bundleId": "tv.twitch",
+   "version": "31.9",
+   "size": "178.7 MB",
+   "icon": "https://github.com/gunnerkidBT.png",
+   "url": "https://github.com/gunnerkidBT/TwitchAdBlock/releases/download/v31.9-0.1.18/tv.twitch-31.9-TwitchAdBlock-0.1.18-noplugins.ipa",
+   "notes": "Unofficial Twitch client modification"
+  },
+  {
+   "name": "Discord Mods (Unbound / KettuTweak)",
+   "bundleId": "com.hammerandchisel.discord",
+   "version": "353.0",
+   "size": "95.8 MB",
+   "icon": "https://github.com/marioparaschiv.png",
+   "url": "https://github.com/marioparaschiv/unbound/releases/download/loader-latest/Unbound.ipa",
+   "notes": "Choose a community-modified Discord build"
+  },
+  {
+   "name": "签名工坊",
+   "bundleId": "cn.medwarp.signhub",
+   "version": "1.7.0",
+   "size": "9.7 MB",
+   "icon": "https://html.medwarp.cn/ipa/signhub-icon.png",
+   "url": "https://html.medwarp.cn/ipa/SignHub-unsigned.ipa",
+   "notes": "本机重签名工具，zsign 内核"
+  },
+  {
+   "name": "学习台 StudyHub",
+   "bundleId": "cn.medwarp.studyhub",
+   "version": "1.5.0",
+   "size": "1.7 MB",
+   "icon": "",
+   "url": "https://html.medwarp.cn/ipa/StudyHub.ipa",
+   "notes": "高数 / 大学英语课程与题目"
+  }
+ ]
+}

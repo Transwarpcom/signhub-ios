@@ -329,21 +329,23 @@ final class AppStore: ObservableObject {
     nonisolated static func parseProfile(_ url: URL) -> ProfileInfo {
         var info = ProfileInfo()
         guard let raw = try? Data(contentsOf: url) else { return info }
-        // mobileprovision 是 CMS 包裹的 plist，跳过 ASN.1 头找 <plist>
-        let bytes = [UInt8](raw)
-        guard let start = bytes.firstIndex(of: 0x3C),
-              let range = String(data: Data(bytes[start...]), encoding: .isoLatin1),
-              let plistStart = range.range(of: "<?xml"),
-              let plistEnd = range.range(of: "</plist>") else { return info }
-        let xml = String(range[plistStart.lowerBound...plistEnd.upperBound])
-        guard let data = xml.data(using: .utf8),
-              let d = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any]
+
+        // mobileprovision = CMS 包裹的 XML plist。不用「第一个 <」定位，
+        // 直接从字节里搜 "<?xml" 到 "</plist>"，避免命中 DER 里的 0x3C。
+        let all = [UInt8](raw)
+        guard let xmlStart = findBytes(all, Array("<?xml".utf8), from: 0),
+              let plistEnd = findBytes(all, Array("</plist>".utf8), from: xmlStart)
+        else { return info }
+
+        let xmlData = Data(all[xmlStart..<(plistEnd + 8)])
+        guard let d = try? PropertyListSerialization.propertyList(from: xmlData, format: nil) as? [String: Any]
         else { return info }
 
         info.teamId = (d["TeamIdentifier"] as? [String])?.first ?? ""
         info.profileExpireAt = d["ExpirationDate"] as? Date
         info.deviceCount = (d["ProvisionedDevices"] as? [String])?.count ?? 0
         info.uuid = d["UUID"] as? String ?? ""
+        if let c = d["CreationDate"] as? Date { _ = c }
         if let ent = d["Entitlements"] as? [String: Any] {
             info.appId = ent["application-identifier"] as? String ?? ""
             info.subjectCN = ent["com.apple.developer.team-identifier"] as? String ?? ""
@@ -351,16 +353,31 @@ final class AppStore: ObservableObject {
                 EntitlementItem(key: k, value: AppStore.describeValue(ent[k]))
             }
         }
-        // 从内嵌证书取 CN 和到期
         if let certs = d["DeveloperCertificates"] as? [Data], let first = certs.first {
             let (cn, exp) = parseCertCN(first)
             if !cn.isEmpty { info.subjectCN = cn }
             info.expireAt = exp
         }
-        // DER 解析不稳时用描述文件到期兜底（两者通常只差一两天）
         if info.expireAt == nil { info.expireAt = info.profileExpireAt }
         return info
     }
+
+    /// 在字节数组里找子序列
+    nonisolated static func findBytes(_ hay: [UInt8], _ needle: [UInt8], from: Int) -> Int? {
+        guard !needle.isEmpty, hay.count >= needle.count else { return nil }
+        var i = max(0, from)
+        let limit = hay.count - needle.count
+        while i <= limit {
+            if hay[i] == needle[0] {
+                var ok = true
+                for j in 1..<needle.count where hay[i + j] != needle[j] { ok = false; break }
+                if ok { return i }
+            }
+            i += 1
+        }
+        return nil
+    }
+
 
     nonisolated static func describeValue(_ v: Any?) -> String {
         guard let v else { return "—" }

@@ -7,6 +7,8 @@ struct CertDetailView: View {
     @State private var isCurrent = false
     @State private var showAll = false
     @State private var confirmDelete = false
+    @State private var checking = false
+    @State private var revokeText: String?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -16,6 +18,7 @@ struct CertDetailView: View {
                 basicCard
                 profileCard
                 entCard
+                revokeCard
                 deleteCard
             }
             .padding(16)
@@ -113,6 +116,46 @@ struct CertDetailView: View {
                             .frame(maxWidth: .infinity).padding(.vertical, 8)
                     }
                 }
+            }
+        }
+    }
+
+    private var revokeCard: some View {
+        Card(title: "吊销检查（联网）") {
+            VStack(alignment: .leading, spacing: 8) {
+                if let t = revokeText {
+                    Text(t).font(.system(size: 12.5)).foregroundColor(.gray)
+                } else {
+                    Text("请求 Apple OCSP 验证这张证书当前是否有效").font(.system(size: 12)).foregroundColor(.gray)
+                }
+                Button {
+                    check()
+                } label: {
+                    HStack(spacing: 6) {
+                        if checking { ProgressView().tint(.white).scaleEffect(0.8) }
+                        Text(checking ? "查询中…" : "开始检查").font(.system(size: 13, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 10)
+                    .background(Theme.accent).cornerRadius(10)
+                }
+                .disabled(checking)
+            }
+        }
+    }
+
+    private func check() {
+        checking = true
+        revokeText = nil
+        let p12 = store.p12URL(cert)
+        RevocationChecker.check(p12: p12, password: cert.password) { st in
+            checking = false
+            switch st {
+            case .valid:
+                revokeText = "✅ 未被吊销（OCSP 返回 good）"
+            case .revoked:
+                revokeText = "❌ 证书已被 Apple 吊销，签出来的包装不上"
+            case .unknown(let m):
+                revokeText = "⚠️ 查询失败：\(m)"
             }
         }
     }
