@@ -1,0 +1,34 @@
+# 密钥与证书：绝不入库
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
+*.key
+*.pem
+*.cer
+*.der
+*.token
+.env
+.env.*
+secrets*
+password*
+
+# 签名产物
+*.ipa
+*.app
+*.dSYM
+build/
+DerivedData/
+out/
+data/
+zsign-iOS/
+openssl-iOS/
+
+# 系统与编辑器
+.DS_Store
+*.xcuserstate
+xcuserdata/
+.idea/
+.vscode/
+__pycache__/
+*.pyc

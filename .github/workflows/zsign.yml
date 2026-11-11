@@ -42,6 +42,13 @@ jobs:
           SRC=/tmp/zsign/src
           mkdir -p /tmp/obj
 
+          # OpenSSL 头文件实际位置（不同版本目录层级不同）
+          PEM=$(find "$OSSL/Headers" -name "pem.h" | head -1)
+          echo "pem.h -> $PEM"
+          INC=$(dirname "$(dirname "$PEM")")
+          echo "INC -> $INC"
+          ls "$INC" | head -10
+
           # 把 main 改名，避免和 App 的 main 冲突
           sed 's/^int main(/int zsign_run_main(/' "$SRC/zsign.cpp" > /tmp/zsign_entry.cpp
 
