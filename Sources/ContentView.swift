@@ -124,9 +124,9 @@ struct WorkshopView: View {
                     } label: { Image(systemName: "plus.circle.fill").font(.system(size: 22)) }
                 }
             }
-            .fileImporter(isPresented: $showImporter,
-                          allowedContentTypes: [.item],
-                          allowsMultipleSelection: true) { handleImport($0) }
+            .documentPicker(isPresented: $showImporter, allowsMultiple: true) { urls in
+                for u in urls { _ = try? store.importIPA(from: u) }
+            }
             .sheet(isPresented: $showUrlSheet) { urlSheet }
             .sheet(item: $pending) { rec in
                 SignConfigView(ipa: rec).environmentObject(store)
@@ -475,16 +475,13 @@ struct AddCertView: View {
             .background(Theme.bg.ignoresSafeArea())
             .navigationTitle("添加证书").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } } }
-            .fileImporter(isPresented: Binding(get: { picking != nil }, set: { if !$0 { picking = nil } }),
-                          allowedContentTypes: [.item], allowsMultipleSelection: false) { res in
-                guard case .success(let urls) = res, let u = urls.first else { picking = nil; return }
-                let scoped = u.startAccessingSecurityScopedResource()
-                let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(u.lastPathComponent)
-                try? FileManager.default.removeItem(at: tmp)
-                try? FileManager.default.copyItem(at: u, to: tmp)
-                if scoped { u.stopAccessingSecurityScopedResource() }
-                if picking == "p12" { p12 = tmp } else { mp = tmp }
+            .documentPicker(isPresented: Binding(get: { picking == "p12" }, set: { if !$0 && picking == "p12" { picking = nil } })) { urls in
                 picking = nil
+                if let u = urls.first { p12 = u }
+            }
+            .documentPicker(isPresented: Binding(get: { picking == "mp" }, set: { if !$0 && picking == "mp" { picking = nil } })) { urls in
+                picking = nil
+                if let u = urls.first { mp = u }
             }
         }
     }
@@ -555,19 +552,8 @@ struct DylibListView: View {
                     Button { showImporter = true } label: { Image(systemName: "plus.circle.fill").font(.system(size: 22)) }
                 }
             }
-            .fileImporter(isPresented: $showImporter,
-                          allowedContentTypes: [.item],
-                          allowsMultipleSelection: true) { res in
-                guard case .success(let urls) = res else { return }
-                for u in urls {
-                    let scoped = u.startAccessingSecurityScopedResource()
-                    let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(u.lastPathComponent)
-                    try? FileManager.default.removeItem(at: tmp)
-                    try? FileManager.default.copyItem(at: u, to: tmp)
-                    if scoped { u.stopAccessingSecurityScopedResource() }
-                    _ = try? store.addDylib(from: tmp)
-                    try? FileManager.default.removeItem(at: tmp)
-                }
+            .documentPicker(isPresented: $showImporter, allowsMultiple: true) { urls in
+                for u in urls { _ = try? store.addDylib(from: u) }
             }
         }
         .navigationViewStyle(.stack)
