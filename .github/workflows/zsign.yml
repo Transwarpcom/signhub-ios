@@ -1,0 +1,87 @@
+name: Build zsign iOS lib
+"on":
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/zsign.yml' ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch OpenSSL xcframework
+        run: |
+          set -e
+          curl -fL --retry 3 -o /tmp/openssl.zip \
+            https://github.com/krzyzanowskim/OpenSSL/releases/download/3.6.5000/OpenSSL.xcframework.zip
+          unzip -q -o /tmp/openssl.zip -d /tmp/openssl
+          OSSL=/tmp/openssl/OpenSSL.xcframework/ios-arm64/OpenSSL.framework
+          echo "--- framework ---"
+          ls -la "$OSSL"
+          echo "--- headers ---"
+          ls "$OSSL/Headers" | head -20
+          echo "--- binary type ---"
+          file "$OSSL/OpenSSL"
+          echo "--- symbols (static?) ---"
+          nm -g "$OSSL/OpenSSL" 2>/dev/null | grep -c "T _PKCS12_parse" || true
+
+      - name: Clone zsign
+        run: |
+          set -e
+          git clone --depth 1 https://github.com/zhlynn/zsign.git /tmp/zsign
+          ls /tmp/zsign/src
+          echo "--- third-party ---"
+          ls /tmp/zsign/src/third-party
+
+      - name: Compile zsign for iOS arm64
+        run: |
+          set -e
+          OSSL=/tmp/openssl/OpenSSL.xcframework/ios-arm64/OpenSSL.framework
+          SRC=/tmp/zsign/src
+          mkdir -p /tmp/obj
+
+          # 把 main 改名，避免和 App 的 main 冲突
+          sed 's/^int main(/int zsign_run_main(/' "$SRC/zsign.cpp" > /tmp/zsign_entry.cpp
+
+          CXX="xcrun --sdk iphoneos clang++ -arch arm64 -miphoneos-version-min=15.0 -std=c++11 -O2 -fno-exceptions -fno-rtti"
+          $CXX -c /tmp/zsign_entry.cpp \
+            -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$OSSL/Headers" \
+            -o /tmp/obj/zsign_entry.o
+          echo "zsign_entry OK"
+
+          for f in "$SRC"/*.cpp; do
+            [ "$(basename "$f")" = "zsign.cpp" ] && continue
+            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$OSSL/Headers" \
+              -o "/tmp/obj/$(basename "$f" .cpp).o"
+          done
+          echo "src OK"
+
+          for f in "$SRC"/common/*.cpp; do
+            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$OSSL/Headers" \
+              -o "/tmp/obj/common_$(basename "$f" .cpp).o"
+          done
+          echo "common OK"
+
+          CC="xcrun --sdk iphoneos clang -arch arm64 -miphoneos-version-min=15.0 -O2"
+          for f in "$SRC"/third-party/zlib/*.c; do
+            $CC -c "$f" -I "$SRC/third-party/zlib" -o "/tmp/obj/zlib_$(basename "$f" .c).o"
+          done
+          echo "zlib OK"
+
+          for f in "$SRC"/third-party/minizip/*.c; do
+            $CC -c "$f" -I "$SRC/third-party/zlib" -I "$SRC/third-party/minizip" -o "/tmp/obj/minizip_$(basename "$f" .c).o"
+          done
+          echo "minizip OK"
+
+          libtool -static -o /tmp/libzsign.a /tmp/obj/*.o
+          ls -lh /tmp/libzsign.a
+          echo "--- arch ---"
+          lipo -info /tmp/libzsign.a
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libzsign-ios
+          path: /tmp/libzsign.a
+          retention-days: 7
