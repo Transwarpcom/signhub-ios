@@ -184,7 +184,7 @@ struct ContentView: View {
         }
     }
 
-    private func logCard: some View {
+    private func logCard() -> some View {
         card("日志") {
             Text(log)
                 .font(.system(size: 11, design: .monospaced))
