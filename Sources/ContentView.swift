@@ -387,8 +387,7 @@ struct CertListView: View {
         lines.append("白名单设备：\(c.deviceCount) 台")
         lines.append("entitlements：\(c.entitlements.count) 项")
         lines.append(c.password.isEmpty ? "p12 密码为空" : "p12 密码已保存")
-        checkMsg = lines.joined(separator: "
-")
+        checkMsg = lines.joined(separator: "\n")
     }
 
     private func certCard(_ c: CertRecord) -> some View {
