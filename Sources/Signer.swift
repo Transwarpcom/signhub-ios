@@ -115,10 +115,10 @@ enum Signer {
 
             // 重新打包成 ipa
             progress?(0.5)
-            let repacked = work.appendingPathComponent("repacked.ipa")
-            try zip(unzipDir, to: repacked)
+            // 不再自己打 zip：zsign 支持直接签 .app 目录并自行打包，
+            // 绕开自研 zip 实现（LiveContainer 这类包会被写坏 → Unzip failed!）
             progress?(0.7)
-            log("重新打包完成")
+            log("准备签名（直接签 .app 目录）")
 
             // zsign 签名
             var args = ["zsign",
@@ -126,7 +126,7 @@ enum Signer {
                         "-p", password,
                         "-m", profile.path,
                         "-o", output.path,
-                        repacked.path]
+                        app.path]
             for d in dylibs {
                 args += ["-l", d.path]
             }
