@@ -45,7 +45,7 @@ final class Signer {
         defer { cArgs.forEach { free($0) } }
 
         let code = cArgs.withUnsafeMutableBufferPointer { buf -> Int32 in
-            zsign_run_main(Int32(buf.count), buf.baseAddress)
+            zsign_run_main_c(Int32(buf.count), buf.baseAddress)
         }
 
         let exists = FileManager.default.fileExists(atPath: output.path)
