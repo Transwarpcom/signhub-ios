@@ -37,12 +37,7 @@ jobs:
           grep -nE "int +main *\(" "$SRC/zsign.cpp" | head -3
           $CXX -Dmain=zsign_run_main -c "$SRC/zsign.cpp" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o /tmp/obj/zsign_entry.o
           # zsign 是 C++，-D 出来的是 mangled 符号；写个 extern "C" 包装给 Swift 用
-          cat > /tmp/bridge.cpp <<'CPP'
-extern int zsign_run_main(int argc, char **argv);
-extern "C" int zsign_run_main_c(int argc, char **argv) {
-    return zsign_run_main(argc, argv);
-}
-CPP
+          echo 'extern int zsign_run_main(int, char **); extern "C" int zsign_run_main_c(int c, char **v) { return zsign_run_main(c, v); }' > /tmp/bridge.cpp
           $CXX -c /tmp/bridge.cpp -o /tmp/obj/zz_bridge.o
           echo "=== bridge 符号 ==="
           nm -g /tmp/obj/zz_bridge.o | grep zsign_run_main_c | head -3
