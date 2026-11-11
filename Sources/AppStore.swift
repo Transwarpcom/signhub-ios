@@ -145,7 +145,10 @@ final class AppStore: ObservableObject {
 
     private func decode<T: Decodable>(_ type: T.Type, _ name: String) -> T? {
         guard let data = try? Data(contentsOf: metaURL(name)) else { return nil }
-        return try? JSONDecoder().decode(type, from: data)
+        let dec = JSONDecoder()
+        // 必须和 persist() 的编码策略一致，否则 Date 解不出来（刚导入正常、冷启动变 nil）
+        dec.dateDecodingStrategy = .iso8601
+        return try? dec.decode(type, from: data)
     }
 
     private func persist() {
