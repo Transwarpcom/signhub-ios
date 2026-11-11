@@ -656,6 +656,17 @@ struct SettingsView: View {
                 row("证书", "\(store.certs.count) 张")
                 row("动态库", "\(store.dylibs.count) 个")
                 Divider().background(Theme.line)
+                NavigationLink {
+                    HistoryView().environmentObject(store)
+                } label: {
+                    HStack {
+                        Text("签名历史").font(.system(size: 13.5))
+                        Spacer()
+                        Text("\(store.history.count) 条").font(.system(size: 12.5)).foregroundColor(.gray)
+                        Image(systemName: "chevron.right").font(.system(size: 11)).foregroundColor(.gray.opacity(0.6))
+                    }
+                }
+                Divider().background(Theme.line)
                 row("占用空间", totalSize())
             }
         }

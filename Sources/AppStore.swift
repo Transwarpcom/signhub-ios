@@ -100,6 +100,7 @@ final class AppStore: ObservableObject {
     static let shared = AppStore()
 
     @Published var certs: [CertRecord] = []
+    @Published var history: [SignHistory] = []
     @Published var ipas: [IPARecord] = []
     @Published var signed: [IPARecord] = []
     @Published var dylibs: [DylibRecord] = []
@@ -133,6 +134,7 @@ final class AppStore: ObservableObject {
 
     private func load() {
         certs = decode([CertRecord].self, "certs") ?? []
+        history = decode([SignHistory].self, "history") ?? []
         ipas = decode([IPARecord].self, "ipas") ?? []
         signed = decode([IPARecord].self, "signed") ?? []
         dylibs = decode([DylibRecord].self, "dylibs") ?? []
@@ -158,6 +160,15 @@ final class AppStore: ObservableObject {
         if let d = try? enc.encode(ipas) { try? d.write(to: metaURL("ipas")) }
         if let d = try? enc.encode(signed) { try? d.write(to: metaURL("signed")) }
         if let d = try? enc.encode(dylibs) { try? d.write(to: metaURL("dylibs")) }
+        if let d = try? enc.encode(history) { try? d.write(to: metaURL("history")) }
+    }
+
+    func saveHistory() { persist() }
+
+    func addHistory(_ h: SignHistory) {
+        history.insert(h, at: 0)
+        if history.count > 200 { history = Array(history.prefix(200)) }
+        persist()
     }
 
     func save() { persist() }

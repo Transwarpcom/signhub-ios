@@ -257,6 +257,12 @@ struct SignConfigView: View {
                                         importedAt: Date(),
                                         isSigned: true)
                     store.registerSigned(rec)
+                    store.addHistory(SignHistory(
+                        name: meta.displayName.isEmpty ? last.lastPathComponent : meta.displayName,
+                        bundleId: meta.bundleId, version: meta.version,
+                        certLabel: cert.label, signedAt: Date(),
+                        size: meta.unzipSize, ok: true,
+                        outputPath: last.lastPathComponent, message: ""))
                     result = rec
                 } else {
                     error = "签名失败，看日志"

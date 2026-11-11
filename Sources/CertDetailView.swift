@@ -18,6 +18,7 @@ struct CertDetailView: View {
                 basicCard
                 profileCard
                 entCard
+                exportCard
                 revokeCard
                 deleteCard
             }
@@ -117,6 +118,37 @@ struct CertDetailView: View {
                     }
                 }
             }
+        }
+    }
+
+    private var exportCard: some View {
+        Card(title: "导出") {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("直接分享 p12 和 mobileprovision 两个文件。p12 密码就是导入时填的那个。")
+                    .font(.system(size: 12)).foregroundColor(.gray)
+                Button {
+                    exportPack()
+                } label: {
+                    Label("导出证书包", systemImage: "square.and.arrow.up")
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(Theme.panel2).cornerRadius(10)
+                }
+            }
+        }
+    }
+
+    private func exportPack() {
+        let p12 = store.p12URL(cert)
+        let prof = store.profileURL(cert)
+        var items: [Any] = []
+        if FileManager.default.fileExists(atPath: p12.path) { items.append(p12) }
+        if FileManager.default.fileExists(atPath: prof.path) { items.append(prof) }
+        guard !items.isEmpty else { return }
+        let av = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let root = scene.windows.first?.rootViewController {
+            root.present(av, animated: true)
         }
     }
 
