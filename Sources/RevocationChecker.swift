@@ -12,9 +12,13 @@ enum RevocationChecker {
 
     /// p12 里的叶子证书做一次链验证 + OCSP
     static func check(p12: URL, password: String, completion: @escaping (Status) -> Void) {
+        guard let p12Data = try? Data(contentsOf: p12) else {
+            completion(.unknown("读不到 p12 文件"))
+            return
+        }
         var items: CFArray?
         let opts = [kSecImportExportPassphrase as String: password] as CFDictionary
-        let status = SecPKCS12Import(p12 as CFURL, opts, &items)
+        let status = SecPKCS12Import(p12Data as CFData, opts, &items)
         guard status == errSecSuccess,
               let arr = items as? [[String: Any]],
               let first = arr.first,
