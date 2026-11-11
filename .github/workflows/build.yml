@@ -73,6 +73,17 @@ jobs:
           cp -R "$OSSL/Headers/"* Vendor/include/ 2>/dev/null || true
           ls -lh Vendor
 
+      - name: Inject version
+        run: |
+          set -e
+          VER=$(cat VERSION | tr -d '
+')
+          BUILD=${{ github.run_number }}
+          echo "version=$VER build=$BUILD"
+          sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: \"$VER\"/" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: .*/CURRENT_PROJECT_VERSION: \"$BUILD\"/" project.yml
+          grep -E "MARKETING_VERSION|CURRENT_PROJECT_VERSION" project.yml
+
       - name: Generate Xcode project
         run: xcodegen generate
 
