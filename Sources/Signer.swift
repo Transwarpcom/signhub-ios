@@ -50,7 +50,7 @@ final class Signer {
 
         let exists = FileManager.default.fileExists(atPath: output.path)
         let size = (try? FileManager.default.attributesOfItem(atPath: output.path)[.size] as? Int64) ?? 0
-        let log = "exit=\(code) outputExists=\(exists) size=\(size ?? 0)"
+        let log = "exit=\(code) outputExists=\(exists) size=\(size)"
         logHandler?(log)
 
         return Result(ok: code == 0 && exists, log: log, outputURL: exists ? output : nil)

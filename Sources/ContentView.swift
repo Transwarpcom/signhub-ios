@@ -300,6 +300,6 @@ struct ContentView: View {
 
     private func byteText(_ url: URL) -> String {
         let n = (try? FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0
-        return ByteCountFormatter.string(fromByteCount: n ?? 0, countStyle: .file)
+        return ByteCountFormatter.string(fromByteCount: n, countStyle: .file)
     }
 }
