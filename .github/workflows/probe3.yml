@@ -1,0 +1,31 @@
+name: Probe3
+"on":
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/probe3.yml' ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode
+        run: |
+          xcodebuild -version
+          sw_vers
+      - name: Fetch OpenSSL
+        run: |
+          set -e
+          curl -fL --retry 3 -o /tmp/openssl.zip \
+            https://github.com/krzyzanowskim/OpenSSL/releases/download/3.4.1/OpenSSL.xcframework.zip
+          unzip -q -o /tmp/openssl.zip -d /tmp/openssl
+          echo "--- tree ---"
+          find /tmp/openssl -maxdepth 4 | head -40
+      - name: Clone zsign
+        run: |
+          git clone --depth 1 https://github.com/zhlynn/zsign.git /tmp/zsign
+          echo "--- src ---"
+          ls /tmp/zsign/src
+          echo "--- src/common ---"
+          ls /tmp/zsign/src/common
