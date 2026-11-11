@@ -126,6 +126,19 @@ final class AppStore: ObservableObject {
 
     func save() { persist() }
 
+    /// 只有一张证书且还没设过当前证书时，自动选中它
+    func ensureCurrentCert() {
+        let key = "hub.currentCert"
+        let cur = UserDefaults.standard.string(forKey: key)
+        if (cur == nil || cur?.isEmpty == true), let first = certs.first {
+            UserDefaults.standard.set(first.id, forKey: key)
+        }
+        // 记录的证书已经被删了，指向第一张
+        if let cur, !certs.contains(where: { $0.id == cur }), let first = certs.first {
+            UserDefaults.standard.set(first.id, forKey: key)
+        }
+    }
+
     // MARK: 证书
 
     func addCert(p12: URL, profile: URL, password: String, label: String) throws -> CertRecord {
@@ -328,12 +341,16 @@ final class AppStore: ObservableObject {
     /// 用 Security.framework 解析 DER 证书的 CN 和 notAfter
     nonisolated static func parseCertCN(_ der: Data) -> (String, Date?) {
         guard let cert = SecCertificateCreateWithData(nil, der as CFData) else { return ("", nil) }
-        var cn = ""
+        let cn = (SecCertificateCopySubjectSummary(cert) as String?) ?? ""
+
         var exp: Date?
-        if let sum = SecCertificateCopySubjectSummary(cert) {
-            cn = sum as String
+        // kSecOIDX509V1ValidityNotAfter → SecCertificateCopyValues
+        let oids = [kSecOIDX509V1ValidityNotAfter] as CFArray
+        if let dict = SecCertificateCopyValues(cert, oids, nil) as? [CFString: Any],
+           let entry = dict[kSecOIDX509V1ValidityNotAfter] as? [CFString: Any],
+           let v = entry[kSecPropertyKeyValue] as? Date {
+            exp = v
         }
-        // 有效期从 DER 里粗读（Security 没有直接 API）
         return (cn, exp)
     }
 }

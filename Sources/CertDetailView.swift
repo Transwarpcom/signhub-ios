@@ -21,6 +21,7 @@ struct CertDetailView: View {
         .navigationTitle(cert.label)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            store.ensureCurrentCert()
             isCurrent = UserDefaults.standard.string(forKey: "hub.currentCert") == cert.id
         }
     }
@@ -77,9 +78,12 @@ struct CertDetailView: View {
                 let list = showAll ? cert.entitlements : Array(cert.entitlements.prefix(8))
                 ForEach(list) { e in
                     VStack(alignment: .leading, spacing: 3) {
+                        Text(EntitlementNames.display(e.key))
+                            .font(.system(size: 12.5, weight: .medium))
+                            .foregroundColor(.primary).lineLimit(2)
                         Text(e.key)
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.gray).lineLimit(2)
+                            .font(.system(size: 9.5, design: .monospaced))
+                            .foregroundColor(.gray.opacity(0.7)).lineLimit(2)
                         Text(e.value)
                             .font(.system(size: 12.5))
                             .foregroundColor(e.value == "是" ? Theme.ok : .primary)

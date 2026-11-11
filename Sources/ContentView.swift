@@ -330,7 +330,7 @@ struct CertListView: View {
                                     store.removeCert(c)
                                 } label: { Label("删除", systemImage: "trash") }
                                 Button {
-                                    checking = c
+                                    runCheck(c)
                                 } label: { Label("检查", systemImage: "stethoscope") }
                                     .tint(Theme.accent)
                                 Button {
@@ -352,6 +352,7 @@ struct CertListView: View {
                 }
             }
             .sheet(isPresented: $showAdd) { AddCertView().environmentObject(store) }
+            .onAppear { store.ensureCurrentCert() }
             .alert("重命名", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
                 TextField("名称", text: $renameText)
                 Button("保存") { commitRename() }
