@@ -32,15 +32,10 @@ jobs:
 
           CXX="xcrun --sdk iphoneos clang++ -arch arm64 -miphoneos-version-min=16.0 -std=c++11 -O2 -fno-rtti"
 
-          # 用宏把 main 改名，避免和 App 的 main 冲突
-          echo "=== zsign.cpp 里的 main ==="
-          grep -nE "int +main *\(" "$SRC/zsign.cpp" | head -3
           $CXX -Dmain=zsign_run_main -c "$SRC/zsign.cpp" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o /tmp/obj/zsign_entry.o
-          # zsign 是 C++，-D 出来的是 mangled 符号；写个 extern "C" 包装给 Swift 用
+
           echo 'extern int zsign_run_main(int, char **); extern "C" int zsign_run_main_c(int c, char **v) { return zsign_run_main(c, v); }' > /tmp/bridge.cpp
           $CXX -c /tmp/bridge.cpp -o /tmp/obj/zz_bridge.o
-          echo "=== bridge 符号 ==="
-          nm -g /tmp/obj/zz_bridge.o | grep zsign_run_main_c | head -3
 
           for f in "$SRC"/*.cpp; do
             [ "$(basename "$f")" = "zsign.cpp" ] && continue
@@ -63,12 +58,9 @@ jobs:
           done
 
           libtool -static -o /tmp/libzsign.a /tmp/obj/*.o
-          echo "=== libzsign.a 里的 main 符号 ==="
-          nm -g /tmp/libzsign.a 2>/dev/null | grep -i "zsign_run_main" | head -3 || echo "NOT FOUND"
           mkdir -p Vendor
           cp /tmp/libzsign.a Vendor/
           cp -R "$OSSL" Vendor/OpenSSL.framework
-          # 拷 header 供 swift 桥接
           mkdir -p Vendor/include
           cp -R "$OSSL/Headers/"* Vendor/include/ 2>/dev/null || true
           ls -lh Vendor
@@ -76,8 +68,7 @@ jobs:
       - name: Inject version
         run: |
           set -e
-          VER=$(cat VERSION | tr -d '
-')
+          VER=1.6.0
           BUILD=${{ github.run_number }}
           echo "version=$VER build=$BUILD"
           sed -i '' "s/MARKETING_VERSION: .*/MARKETING_VERSION: \"$VER\"/" project.yml
@@ -105,11 +96,8 @@ jobs:
         run: |
           set -e
           APP=build/Build/Products/Release-iphoneos/SignHub.app
-          ls -la "$APP" | head -20
-          # OpenSSL 是动态 framework，必须 embed 进 App，否则 dyld 找不到直接闪退
           mkdir -p "$APP/Frameworks"
           cp -R Vendor/OpenSSL.framework "$APP/Frameworks/"
-          ls -la "$APP/Frameworks/"
           mkdir -p Payload
           cp -R "$APP" Payload/
           zip -qry SignHub-unsigned.ipa Payload
