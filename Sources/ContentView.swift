@@ -125,7 +125,7 @@ struct WorkshopView: View {
                 }
             }
             .fileImporter(isPresented: $showImporter,
-                          allowedContentTypes: [UTType(filenameExtension: "ipa") ?? .data],
+                          allowedContentTypes: [.item],
                           allowsMultipleSelection: true) { handleImport($0) }
             .sheet(isPresented: $showUrlSheet) { urlSheet }
             .sheet(item: $pending) { rec in
@@ -303,6 +303,10 @@ struct SignedListView: View {
 struct CertListView: View {
     @EnvironmentObject var store: AppStore
     @State private var showAdd = false
+    @State private var renaming: CertRecord?
+    @State private var checking: CertRecord?
+    @State private var renameText = ""
+    @State private var checkMsg: String?
 
     var body: some View {
         NavigationView {
@@ -314,7 +318,28 @@ struct CertListView: View {
                             Text("还没有证书").foregroundColor(.gray)
                         }.frame(maxWidth: .infinity).padding(.vertical, 80)
                     } else {
-                        ForEach(store.certs) { certCard($0) }
+                        ForEach(store.certs) { c in
+                            NavigationLink {
+                                CertDetailView(cert: c).environmentObject(store)
+                            } label: {
+                                certCard(c)
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    store.removeCert(c)
+                                } label: { Label("删除", systemImage: "trash") }
+                                Button {
+                                    checking = c
+                                } label: { Label("检查", systemImage: "stethoscope") }
+                                    .tint(Theme.accent)
+                                Button {
+                                    renaming = c
+                                    renameText = c.label
+                                } label: { Label("重命名", systemImage: "pencil") }
+                                    .tint(.gray)
+                            }
+                        }
                     }
                 }
                 .padding(16)
@@ -327,8 +352,43 @@ struct CertListView: View {
                 }
             }
             .sheet(isPresented: $showAdd) { AddCertView().environmentObject(store) }
+            .alert("重命名", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
+                TextField("名称", text: $renameText)
+                Button("保存") { commitRename() }
+                Button("取消", role: .cancel) { renaming = nil }
+            }
+            .alert("检查结果", isPresented: Binding(get: { checkMsg != nil }, set: { if !$0 { checkMsg = nil } })) {
+                Button("好") { checkMsg = nil }
+            } message: { Text(checkMsg ?? "") }
         }
         .navigationViewStyle(.stack)
+    }
+
+    private func commitRename() {
+        guard let c = renaming else { return }
+        if let i = store.certs.firstIndex(where: { $0.id == c.id }) {
+            store.certs[i].label = renameText
+            store.save()
+        }
+        renaming = nil
+    }
+
+    private func runCheck(_ c: CertRecord) {
+        var lines: [String] = []
+        lines.append("证书：\(c.subjectCN.isEmpty ? c.label : c.subjectCN)")
+        if let e = c.expireAt {
+            let days = Int(e.timeIntervalSinceNow / 86400)
+            lines.append(days > 0 ? "有效期剩余 \(days) 天" : "证书已过期 \(-days) 天")
+        }
+        if let e = c.profileExpireAt {
+            let days = Int(e.timeIntervalSinceNow / 86400)
+            lines.append(days > 0 ? "描述文件剩余 \(days) 天" : "描述文件已过期 \(-days) 天")
+        }
+        lines.append("白名单设备：\(c.deviceCount) 台")
+        lines.append("entitlements：\(c.entitlements.count) 项")
+        lines.append(c.password.isEmpty ? "p12 密码为空" : "p12 密码已保存")
+        checkMsg = lines.joined(separator: "
+")
     }
 
     private func certCard(_ c: CertRecord) -> some View {
@@ -417,7 +477,7 @@ struct AddCertView: View {
             .navigationTitle("添加证书").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } } }
             .fileImporter(isPresented: Binding(get: { picking != nil }, set: { if !$0 { picking = nil } }),
-                          allowedContentTypes: [.data], allowsMultipleSelection: false) { res in
+                          allowedContentTypes: [.item], allowsMultipleSelection: false) { res in
                 guard case .success(let urls) = res, let u = urls.first else { picking = nil; return }
                 let scoped = u.startAccessingSecurityScopedResource()
                 let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(u.lastPathComponent)
@@ -497,7 +557,7 @@ struct DylibListView: View {
                 }
             }
             .fileImporter(isPresented: $showImporter,
-                          allowedContentTypes: [UTType(filenameExtension: "dylib") ?? .data],
+                          allowedContentTypes: [.item],
                           allowsMultipleSelection: true) { res in
                 guard case .success(let urls) = res else { return }
                 for u in urls {
@@ -519,27 +579,18 @@ struct DylibListView: View {
 
 struct SettingsView: View {
     @EnvironmentObject var store: AppStore
+    @State private var checking = false
+    @State private var updateMsg: String?
+    @State private var pendingManifest: UpdateChecker.Manifest?
+
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 12) {
-                    Card(title: "存储") {
-                        VStack(spacing: 8) {
-                            row("IPA", "\(store.ipas.count) 个")
-                            row("已签名", "\(store.signed.count) 个")
-                            row("证书", "\(store.certs.count) 张")
-                            row("动态库", "\(store.dylibs.count) 个")
-                        }
-                    }
-                    Card(title: "关于") {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("签名工坊").font(.system(size: 14, weight: .semibold))
-                            Text("zsign 内核 · 本地重签名 · OTA 安装")
-                                .font(.system(size: 12)).foregroundColor(.gray)
-                            Text("证书、IPA、动态库全部存在本机沙盒，不上传服务器。")
-                                .font(.system(size: 11.5)).foregroundColor(.gray)
-                        }
-                    }
+                    updateCard
+                    storageCard
+                    deviceCard
+                    aboutCard
                 }
                 .padding(16)
             }
@@ -549,11 +600,123 @@ struct SettingsView: View {
         .navigationViewStyle(.stack)
     }
 
+    private var updateCard: some View {
+        Card(title: "更新") {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("当前版本").font(.system(size: 13))
+                    Spacer()
+                    Text("v\(UpdateChecker.currentVersion) (\(UpdateChecker.currentBuild))")
+                        .font(.system(size: 13)).foregroundColor(.gray)
+                }
+                Button {
+                    check()
+                } label: {
+                    HStack {
+                        if checking { ProgressView().tint(.white).scaleEffect(0.8) }
+                        Text(checking ? "检查中…" : "检查更新").font(.system(size: 14, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 11)
+                    .background(Theme.accent).foregroundColor(.white).cornerRadius(11)
+                }
+                .disabled(checking)
+                if let msg = updateMsg {
+                    Text(msg).font(.system(size: 12)).foregroundColor(.gray)
+                }
+                if let m = pendingManifest {
+                    Button {
+                        UpdateChecker.install(m)
+                    } label: {
+                        Text("安装 v\(m.version)").font(.system(size: 14, weight: .semibold))
+                            .frame(maxWidth: .infinity).padding(.vertical, 11)
+                            .background(Theme.ok).cornerRadius(11)
+                    }
+                    if let notes = m.notes, !notes.isEmpty {
+                        Text(notes).font(.system(size: 11.5)).foregroundColor(.gray)
+                    }
+                }
+            }
+        }
+    }
+
+    private var storageCard: some View {
+        Card(title: "存储") {
+            VStack(spacing: 8) {
+                row("IPA", "\(store.ipas.count) 个")
+                row("已签名", "\(store.signed.count) 个")
+                row("证书", "\(store.certs.count) 张")
+                row("动态库", "\(store.dylibs.count) 个")
+                Divider().background(Theme.line)
+                row("占用空间", totalSize())
+            }
+        }
+    }
+
+    private var deviceCard: some View {
+        Card(title: "设备") {
+            VStack(spacing: 8) {
+                row("设备标识", deviceId())
+                row("系统版本", UIDevice.current.systemVersion)
+                row("机型", UIDevice.current.model)
+            }
+        }
+    }
+
+    private var aboutCard: some View {
+        Card(title: "关于") {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("签名工坊").font(.system(size: 14, weight: .semibold))
+                Text("zsign 内核 · 本地重签名 · OTA 安装")
+                    .font(.system(size: 12)).foregroundColor(.gray)
+                Text("所有签名和安装都在本机完成，IPA 和证书不会离开设备。")
+                    .font(.system(size: 11.5)).foregroundColor(.gray)
+            }
+        }
+    }
+
     private func row(_ k: String, _ v: String) -> some View {
         HStack {
             Text(k).font(.system(size: 13))
             Spacer()
             Text(v).font(.system(size: 13)).foregroundColor(.gray)
+        }
+    }
+
+    private func totalSize() -> String {
+        let fm = FileManager.default
+        var total: Int64 = 0
+        for sub in [store.ipasDir, store.signedDir, store.certsDir, store.dylibsDir] {
+            if let en = fm.enumerator(at: sub, includingPropertiesForKeys: [.fileSizeKey]) {
+                for case let u as URL in en {
+                    total += Int64((try? u.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+                }
+            }
+        }
+        return fmtSize(total)
+    }
+
+    private func deviceId() -> String {
+        if let id = UserDefaults.standard.string(forKey: "hub.deviceId") { return id }
+        let id = String(UUID().uuidString.prefix(8)).uppercased()
+        UserDefaults.standard.set(id, forKey: "hub.deviceId")
+        return id
+    }
+
+    private func check() {
+        checking = true
+        updateMsg = nil
+        pendingManifest = nil
+        UpdateChecker.check { res in
+            checking = false
+            switch res {
+            case .upToDate:
+                updateMsg = "已经是最新版"
+            case .available(let m):
+                updateMsg = "发现新版本 v\(m.version)"
+                pendingManifest = m
+            case .failed(let e):
+                updateMsg = "检查失败：\(e)"
+            }
         }
     }
 }

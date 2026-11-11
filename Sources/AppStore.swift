@@ -16,6 +16,14 @@ struct CertRecord: Codable, Identifiable, Equatable {
     var createdAt: Date
     var p12Name: String
     var profileName: String
+    var uuid: String = ""
+    var entitlements: [EntitlementItem] = []
+}
+
+struct EntitlementItem: Codable, Identifiable, Equatable, Hashable {
+    var id: String { key }
+    var key: String
+    var value: String
 }
 
 struct IPARecord: Codable, Identifiable, Equatable {
@@ -146,7 +154,9 @@ final class AppStore: ObservableObject {
             deviceCount: info.deviceCount,
             createdAt: Date(),
             p12Name: "cert.p12",
-            profileName: "profile.mobileprovision"
+            profileName: "profile.mobileprovision",
+            uuid: info.uuid,
+            entitlements: info.entitlements
         )
         certs.insert(rec, at: 0)
         persist()
@@ -266,6 +276,8 @@ final class AppStore: ObservableObject {
         var expireAt: Date?
         var profileExpireAt: Date?
         var deviceCount = 0
+        var uuid = ""
+        var entitlements: [EntitlementItem] = []
     }
 
     nonisolated static func parseProfile(_ url: URL) -> ProfileInfo {
@@ -285,9 +297,13 @@ final class AppStore: ObservableObject {
         info.teamId = (d["TeamIdentifier"] as? [String])?.first ?? ""
         info.profileExpireAt = d["ExpirationDate"] as? Date
         info.deviceCount = (d["ProvisionedDevices"] as? [String])?.count ?? 0
+        info.uuid = d["UUID"] as? String ?? ""
         if let ent = d["Entitlements"] as? [String: Any] {
             info.appId = ent["application-identifier"] as? String ?? ""
             info.subjectCN = ent["com.apple.developer.team-identifier"] as? String ?? ""
+            info.entitlements = ent.keys.sorted().map { k in
+                EntitlementItem(key: k, value: AppStore.describeValue(ent[k]))
+            }
         }
         // 从内嵌证书取 CN 和到期
         if let certs = d["DeveloperCertificates"] as? [Data], let first = certs.first {
@@ -296,6 +312,17 @@ final class AppStore: ObservableObject {
             info.expireAt = exp
         }
         return info
+    }
+
+    nonisolated static func describeValue(_ v: Any?) -> String {
+        guard let v else { return "—" }
+        if let b = v as? Bool { return b ? "是" : "否" }
+        if let s = v as? String { return s }
+        if let a = v as? [Any] {
+            if a.isEmpty { return "[]" }
+            return a.map { "\($0)" }.joined(separator: ", ")
+        }
+        return "\(v)"
     }
 
     /// 用 Security.framework 解析 DER 证书的 CN 和 notAfter
