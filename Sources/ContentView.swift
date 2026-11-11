@@ -32,7 +32,7 @@ struct ContentView: View {
                     fileCard
                     certCard
                     actionCard
-                    if !log.isEmpty { logCard }
+                    if !log.isEmpty { logCard() }
                     if let resultURL { resultCard(resultURL) }
                 }
                 .padding(16)
