@@ -131,11 +131,37 @@ enum Signer {
                 args += ["-l", d.path]
             }
 
+            // 输出文件已存在时 zsign 会拒绝，先清掉
+            if FileManager.default.fileExists(atPath: output.path) {
+                try? FileManager.default.removeItem(at: output)
+            }
+
             log("调用 zsign")
+            // 把 stdout/stderr 重定向到文件，好看到 zsign 到底报什么
+            let logFile = work.appendingPathComponent("zsign.log")
+            FileManager.default.createFile(atPath: logFile.path, contents: nil)
+            let savedOut = dup(STDOUT_FILENO)
+            let savedErr = dup(STDERR_FILENO)
+            if let fh = FileHandle(forWritingAtPath: logFile.path) {
+                dup2(fh.fileDescriptor, STDOUT_FILENO)
+                dup2(fh.fileDescriptor, STDERR_FILENO)
+                fflush(stdout); fflush(stderr)
+            }
+
             var cArgs: [UnsafeMutablePointer<CChar>?] = args.map { strdup($0) }
             defer { cArgs.forEach { free($0) } }
             let code = cArgs.withUnsafeMutableBufferPointer { buf -> Int32 in
                 zsign_run_main_c(Int32(buf.count), buf.baseAddress)
+            }
+
+            fflush(stdout); fflush(stderr)
+            if savedOut >= 0 { dup2(savedOut, STDOUT_FILENO); close(savedOut) }
+            if savedErr >= 0 { dup2(savedErr, STDERR_FILENO); close(savedErr) }
+
+            if let zlog = try? String(contentsOf: logFile, encoding: .utf8), !zlog.isEmpty {
+                log("--- zsign 输出 ---")
+                zlog.split(separator: "
+").suffix(30).forEach { log(String($0)) }
             }
 
             progress?(1.0)
