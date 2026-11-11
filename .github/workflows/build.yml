@@ -30,10 +30,11 @@ jobs:
           mkdir -p /tmp/obj /tmp/inc
           ln -sfn "$OSSL/Headers" /tmp/inc/openssl
 
-          sed 's/^int main(/int zsign_run_main(/' "$SRC/zsign.cpp" > /tmp/zsign_entry.cpp
-
           CXX="xcrun --sdk iphoneos clang++ -arch arm64 -miphoneos-version-min=16.0 -std=c++11 -O2 -fno-rtti"
-          $CXX -c /tmp/zsign_entry.cpp -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o /tmp/obj/zsign_entry.o
+
+          # 用宏把 main 改名，避免和 App 的 main 冲突
+          $CXX -Dmain=zsign_run_main -c "$SRC/zsign.cpp" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I /tmp/inc -o /tmp/obj/zsign_entry.o
+          nm /tmp/obj/zsign_entry.o | grep -c zsign_run_main || true
 
           for f in "$SRC"/*.cpp; do
             [ "$(basename "$f")" = "zsign.cpp" ] && continue
