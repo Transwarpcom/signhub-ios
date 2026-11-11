@@ -18,7 +18,7 @@ jobs:
         run: |
           set -e
           curl -fL --retry 3 -o /tmp/openssl.zip \
-            https://github.com/krzyzanowskim/OpenSSL/releases/download/3.4.1/OpenSSL.xcframework.zip
+            https://github.com/krzyzanowskim/OpenSSL/releases/download/3.6.5000/OpenSSL.xcframework.zip
           unzip -q -o /tmp/openssl.zip -d /tmp/openssl
           echo "--- tree ---"
           find /tmp/openssl -maxdepth 4 | head -40
