@@ -43,11 +43,13 @@ jobs:
           mkdir -p /tmp/obj
 
           # OpenSSL 头文件实际位置（不同版本目录层级不同）
-          PEM=$(find "$OSSL/Headers" -name "pem.h" | head -1)
-          echo "pem.h -> $PEM"
-          INC=$(dirname "$(dirname "$PEM")")
+          # 头文件直接平铺在 Headers/ 下，但 zsign 用 <openssl/xxx.h>，
+          # 所以造一个 include 根，里面放 openssl -> Headers 的软链
+          mkdir -p /tmp/inc
+          ln -sfn "$OSSL/Headers" /tmp/inc/openssl
+          INC=/tmp/inc
           echo "INC -> $INC"
-          ls "$INC" | head -10
+          ls /tmp/inc/openssl | head -5
 
           # 把 main 改名，避免和 App 的 main 冲突
           sed 's/^int main(/int zsign_run_main(/' "$SRC/zsign.cpp" > /tmp/zsign_entry.cpp
