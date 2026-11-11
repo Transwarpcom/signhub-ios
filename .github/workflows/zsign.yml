@@ -54,19 +54,19 @@ jobs:
 
           CXX="xcrun --sdk iphoneos clang++ -arch arm64 -miphoneos-version-min=15.0 -std=c++11 -O2 -fno-exceptions -fno-rtti"
           $CXX -c /tmp/zsign_entry.cpp \
-            -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$OSSL/Headers" \
+            -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$INC" \
             -o /tmp/obj/zsign_entry.o
           echo "zsign_entry OK"
 
           for f in "$SRC"/*.cpp; do
             [ "$(basename "$f")" = "zsign.cpp" ] && continue
-            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$OSSL/Headers" \
+            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$INC" \
               -o "/tmp/obj/$(basename "$f" .cpp).o"
           done
           echo "src OK"
 
           for f in "$SRC"/common/*.cpp; do
-            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$OSSL/Headers" \
+            $CXX -c "$f" -I "$SRC" -I "$SRC/common" -I "$SRC/third-party/zlib" -I "$INC" \
               -o "/tmp/obj/common_$(basename "$f" .cpp).o"
           done
           echo "common OK"
